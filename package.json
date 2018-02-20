@@ -1,0 +1,20 @@
+{
+  "name": "testApp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2",
+    "hbs": "^4.0.1",
+    "isomorphic-fetch": "^2.2.1",
+    "sparql-http-client": "^1.0.2",
+    "stardog": "^1.1.1",
+    "stardog-js": "^0.6.2"
+  }
+}
