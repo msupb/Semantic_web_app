@@ -4,32 +4,30 @@ var fetch = require('isomorphic-fetch')
 var SparqlHttp = require('sparql-http-client')
 
 var app = express()
-/*
-app.get('/', function(request, response){
-       response.render('index.hbs')
-})*/
-//var q = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?x WHERE{?x a foaf:Organization ;}';
 
+//Connection details for local Stardog db
 const conn = new Connection({
-    endpoint: 'http://localhost:5820',
-    auth: {
-        user: 'admin',
-        pass: 'admin'
-    }
+  username: 'admin',
+  password: 'admin',
+  endpoint: 'http://localhost:5820',
 });
 
-//var q = 'select distinct ?s where { ?s ?p ?o }';
-
 var q = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?x WHERE{?x a foaf:Organization ;}';
+
+var foaf = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/>';
+var geo = 'PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>';
+var dbo = 'PREFIX dbo: <http://dbpedia.org/ontology/>';
+
+var q2 = foaf + geo + dbo +
+'SELECT ?x ?name ?city ?county ?phone ?email ?lat ?longWHERE{?x a foaf:Organization ;foaf:name ?name .?x dbo:City ?city .?x dbo:county ?county .?x foaf:mbox ?email .?x foaf:phone ?phone .?x geo:lat ?lat .?x geo:long ?long }'
 /*
 * Execute query to Stardog db
 */
-query.execute(conn, 'hospital_db', q, {
-}).then(({ body }) => {
+query.execute(conn, 'hospital_db', q2).then(({ body }) => {
   console.log(body.results.bindings);
 }).catch((err) => {
   console.log(err);
-})
+});
 
 /*
 * Execute query to dpedia endpoint
@@ -43,7 +41,7 @@ var dbpq = 'select distinct ?Concept where {[] a ?Concept} LIMIT 5'
 endpoint.selectQuery(dbpq).then(function (res) {
      return res.json()
 }).then(function (result) {
-     console.log(result.results.bindings)
+     //console.log(result.results.bindings)
 }).catch(function (err) {
     console.error(err)
 })
