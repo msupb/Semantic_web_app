@@ -24,7 +24,7 @@ var q2 = foaf + geo + dbo +
 * Execute query to Stardog db
 */
 query.execute(conn, 'hospital_db', q2).then(({ body }) => {
-  console.log(body.results.bindings);
+  //console.log(body.results.bindings);
 }).catch((err) => {
   console.log(err);
 });
@@ -35,16 +35,36 @@ query.execute(conn, 'hospital_db', q2).then(({ body }) => {
 
 SparqlHttp.fetch = fetch
 
-var endpoint = new SparqlHttp({endpointUrl: 'http://dbpedia.org/sparql'})
-var dbpq = 'select distinct ?Concept where {[] a ?Concept} LIMIT 5'
-// run query with promises
+//Dbpedia endpoint
+var dpedia = 'http://dbpedia.org/sparql';
+//Linked geodata endpoint
+var lgd = 'http://linkedgeodata.org/sparql';
+
+//Set endpoint
+var endpoint = new SparqlHttp({endpointUrl: dpedia});
+
+var endpoint2 = new SparqlHttp({endpointUrl: lgd});
+
+var dbpq = 'select distinct ?Concept where {[] a ?Concept} LIMIT 1';
+
+var lgdq = 'Prefix lgdr:<http://linkedgeodata.org/triplify/> Prefix lgdo:<http://linkedgeodata.org/ontology/> Select * { ?s ?p ?o . } Limit 1';
+
+// run dbpedia query
 endpoint.selectQuery(dbpq).then(function (res) {
      return res.json()
 }).then(function (result) {
-     //console.log(result.results.bindings)
+     console.log(result.results.bindings)
 }).catch(function (err) {
     console.error(err)
 })
 
+// run linked geodata query
+endpoint.selectQuery(lgdq).then(function (res) {
+     return res.json()
+}).then(function (result) {
+     console.log(result.results.bindings)
+}).catch(function (err) {
+    console.error(err)
+})
 
 app.listen(3000, () => console.log('App listening to port 3000!'))
