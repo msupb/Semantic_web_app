@@ -1,7 +1,7 @@
-var express = require('express')
+var express = require('express');
 const { Connection, query } = require('stardog');
-var fetch = require('isomorphic-fetch')
-var SparqlHttp = require('sparql-http-client')
+var fetch = require('isomorphic-fetch');
+var SparqlHttp = require('sparql-http-client');
 
 var app = express()
 
@@ -19,7 +19,7 @@ var geo = 'PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>';
 var dbo = 'PREFIX dbo: <http://dbpedia.org/ontology/>';
 
 var q2 = foaf + geo + dbo +
-'SELECT ?x ?name ?city ?county ?phone ?email ?lat ?longWHERE{?x a foaf:Organization ;foaf:name ?name .?x dbo:City ?city .?x dbo:county ?county .?x foaf:mbox ?email .?x foaf:phone ?phone .?x geo:lat ?lat .?x geo:long ?long }'
+'SELECT ?x ?name ?city ?county ?phone ?email ?lat ?long WHERE{?x a foaf:Organization ;foaf:name ?name .?x dbo:City ?city .?x dbo:county ?county .?x foaf:mbox ?email .?x foaf:phone ?phone .?x geo:lat ?lat .?x geo:long ?long }'
 /*
 * Execute query to Stardog db
 */
