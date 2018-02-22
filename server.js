@@ -1,9 +1,22 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 const { Connection, query } = require('stardog');
 var fetch = require('isomorphic-fetch');
 var SparqlHttp = require('sparql-http-client');
 
-var app = express()
+var app = express();
+
+app.set("view engine", "hbs");
+
+app.use(bodyParser.urlencoded({extended: false}));
+
+app.get("/", function(request, response){
+  response.render("index", {stardogList: stardogList});
+});
+
+var stardogList = [];
+var list1 = [];
+var list2 = [];
 
 //Connection details for local Stardog db
 const conn = new Connection({
@@ -24,13 +37,14 @@ var q2 = foaf + geo + dbo +
 * Execute query to Stardog db
 */
 query.execute(conn, 'hospital_db', q2).then(({ body }) => {
-  //console.log(body.results.bindings);
+  stardogList = body.results.bindings;
+  console.log(stardogList);
 }).catch((err) => {
   console.log(err);
 });
 
 /*
-* Execute query to dpedia endpoint
+* Execute query to endpoints
 */
 
 SparqlHttp.fetch = fetch
@@ -39,7 +53,6 @@ SparqlHttp.fetch = fetch
 var dpedia = 'http://dbpedia.org/sparql';
 //Linked geodata endpoint
 var lgd = 'http://linkedgeodata.org/sparql';
-
 //Set endpoint
 var endpoint = new SparqlHttp({endpointUrl: dpedia});
 
@@ -47,22 +60,24 @@ var endpoint2 = new SparqlHttp({endpointUrl: lgd});
 
 var dbpq = 'select distinct ?Concept where {[] a ?Concept} LIMIT 1';
 
-var lgdq = 'Prefix lgdr:<http://linkedgeodata.org/triplify/> Prefix lgdo:<http://linkedgeodata.org/ontology/> Select * { ?s ?p ?o . } Limit 1';
+var lgdq = 'Prefix lgdr:<http://linkedgeodata.org/triplify/>Prefix lgdo:<http://linkedgeodata.org/ontology/>Select*{ ?s ?p ?o . }Limit 1';
 
 // run dbpedia query
 endpoint.selectQuery(dbpq).then(function (res) {
      return res.json()
 }).then(function (result) {
-     console.log(result.results.bindings)
+      list1 = result.results.bindings;
+     //console.log(result.results.bindings)
 }).catch(function (err) {
     console.error(err)
 })
 
 // run linked geodata query
-endpoint.selectQuery(lgdq).then(function (res) {
+endpoint2.selectQuery(lgdq).then(function (res) {
      return res.json()
-}).then(function (result) {
-     console.log(result.results.bindings)
+}).then(function (result2) {
+      list2 = result2.results.bindings;
+     //console.log(result2.results.bindings)
 }).catch(function (err) {
     console.error(err)
 })
