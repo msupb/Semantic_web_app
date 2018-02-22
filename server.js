@@ -3,29 +3,38 @@ var bodyParser = require('body-parser');
 const { Connection, query } = require('stardog');
 var fetch = require('isomorphic-fetch');
 var SparqlHttp = require('sparql-http-client');
+var path = require('path');
+var hbs = require('handlebars');
+var exphbs  = require('express-handlebars');
 
 var app = express();
 
-app.set("view engine", "hbs");
+app.use('/views', express.static(__dirname + '/views'));
+app.set('view engine', 'hbs');
+
+/*hbs.create('json', function(context) {
+  return JSON.stringify(context);
+});
+
+var hbs = exphbs.create({
+  helpers: {
+        json: function(context) {
+          return JSON.stringify(context);
+    }
+  }
+});*/
+
+var Handlebars = require('hbs');
+
+Handlebars.registerHelper('json', function(context) {
+    return JSON.stringify(context);
+});
 
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.get("/", function(request, response){
-  response.render("index", {list1: list1});
+  response.render("index", {list: list});
 });
-
-var z = [
-  { x:
-    { type: 'uri',
-      value: 'http://example.org/hospital/Basildon_University_Hospital' },
-   name: { type: 'literal', value: 'Basildon_University_Hospital' },
-   city: { type: 'literal', value: 'Basildon' },
-   county: { type: 'literal', value: 'Essex' },
-   email: { type: 'literal', value: 'pals@btuh.nhs.uk' },
-   phone: { type: 'literal', value: '01268_524900' },
-   lat: { type: 'literal', value: '51.557685852050781' },
-   long: { type: 'literal', value: '0.45057165622711182' } }
-]
 
 var list = [];
 var list1 = [];
@@ -51,7 +60,8 @@ var q2 = foaf + geo + dbo +
 */
 query.execute(conn, 'hospital_db', q2).then(({ body }) => {
   list = body.results.bindings;
-  //console.log(list);
+  JSON.stringify(list);
+  console.log(list);
 }).catch((err) => {
   console.log(err);
 });
@@ -80,7 +90,7 @@ endpoint.selectQuery(dbpq).then(function (res) {
      return res.json()
 }).then(function (result) {
       list1 = result.results.bindings;
-     console.log(list1)
+     //console.log(list1)
 }).catch(function (err) {
     console.error(err)
 })
