@@ -11,10 +11,23 @@ app.set("view engine", "hbs");
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.get("/", function(request, response){
-  response.render("index", {stardogList: stardogList});
+  response.render("index", {list1: list1});
 });
 
-var stardogList = [];
+var z = [
+  { x:
+    { type: 'uri',
+      value: 'http://example.org/hospital/Basildon_University_Hospital' },
+   name: { type: 'literal', value: 'Basildon_University_Hospital' },
+   city: { type: 'literal', value: 'Basildon' },
+   county: { type: 'literal', value: 'Essex' },
+   email: { type: 'literal', value: 'pals@btuh.nhs.uk' },
+   phone: { type: 'literal', value: '01268_524900' },
+   lat: { type: 'literal', value: '51.557685852050781' },
+   long: { type: 'literal', value: '0.45057165622711182' } }
+]
+
+var list = [];
 var list1 = [];
 var list2 = [];
 
@@ -37,8 +50,8 @@ var q2 = foaf + geo + dbo +
 * Execute query to Stardog db
 */
 query.execute(conn, 'hospital_db', q2).then(({ body }) => {
-  stardogList = body.results.bindings;
-  console.log(stardogList);
+  list = body.results.bindings;
+  //console.log(list);
 }).catch((err) => {
   console.log(err);
 });
@@ -67,7 +80,7 @@ endpoint.selectQuery(dbpq).then(function (res) {
      return res.json()
 }).then(function (result) {
       list1 = result.results.bindings;
-     //console.log(result.results.bindings)
+     console.log(list1)
 }).catch(function (err) {
     console.error(err)
 })
@@ -77,7 +90,7 @@ endpoint2.selectQuery(lgdq).then(function (res) {
      return res.json()
 }).then(function (result2) {
       list2 = result2.results.bindings;
-     //console.log(result2.results.bindings)
+     //console.log(list2)
 }).catch(function (err) {
     console.error(err)
 })
