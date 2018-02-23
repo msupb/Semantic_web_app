@@ -4,8 +4,6 @@ const { Connection, query } = require('stardog');
 var fetch = require('isomorphic-fetch');
 var SparqlHttp = require('sparql-http-client');
 var path = require('path');
-var hbs = require('handlebars');
-var exphbs  = require('express-handlebars');
 
 var app = express();
 
@@ -36,9 +34,22 @@ app.get("/", function(request, response){
   response.render("index", {list: list});
 });
 
+app.get("/index/:name", function(request, response){
+  var x = request.params.name;
+  response.render("details", list[x]);
+});
+
 var list = [];
 var list1 = [];
 var list2 = [];
+
+function addId(arr) {
+  arr.forEach(function(obj) {
+    obj.id = 0;
+    if(obj.id = obj.id) obj.id++;
+  });
+  return arr;
+};
 
 //Connection details for local Stardog db
 const conn = new Connection({
@@ -58,13 +69,16 @@ var q2 = foaf + geo + dbo +
 /*
 * Execute query to Stardog db
 */
-query.execute(conn, 'hospital_db', q2).then(({ body }) => {
-  list = body.results.bindings;
-  JSON.stringify(list);
-  console.log(list);
-}).catch((err) => {
-  console.log(err);
-});
+
+  query.execute(conn, 'hospital_db', q2).then(({ body }) => {
+    list = body.results.bindings;
+    addId(list);
+    console.log(list);
+    return list;
+  }).catch((err) => {
+    console.log(err);
+  });
+
 
 /*
 * Execute query to endpoints
@@ -85,24 +99,21 @@ var dbpq = 'select distinct ?Concept where {[] a ?Concept} LIMIT 1';
 
 var lgdq = 'Prefix lgdr:<http://linkedgeodata.org/triplify/>Prefix lgdo:<http://linkedgeodata.org/ontology/>Select*{ ?s ?p ?o . }Limit 1';
 
-// run dbpedia query
-endpoint.selectQuery(dbpq).then(function (res) {
-     return res.json()
-}).then(function (result) {
-      list1 = result.results.bindings;
-     //console.log(list1)
-}).catch(function (err) {
-    console.error(err)
-})
+// run http query
+function sendHttp(q, arr) {
+  endpoint.selectQuery(q).then(function (res) {
+       return res.json()
+  }).then(function (result) {
+        arr = result.results.bindings;
+       //console.log(arr)
+       return arr;
+  }).catch(function (err) {
+      console.error(err)
+  })
+};
 
-// run linked geodata query
-endpoint2.selectQuery(lgdq).then(function (res) {
-     return res.json()
-}).then(function (result2) {
-      list2 = result2.results.bindings;
-     //console.log(list2)
-}).catch(function (err) {
-    console.error(err)
-})
+
+sendHttp(dbpq, list1);
+sendHttp(lgdq, list2);
 
 app.listen(3000, () => console.log('App listening to port 3000!'))
