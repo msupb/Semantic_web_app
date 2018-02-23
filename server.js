@@ -36,9 +36,20 @@ app.get("/", function(request, response){
   response.render("index", {list: list});
 });
 
+app.get("/index/:id", function(request, response){
+  var id = request.params.id;
+  response.render('list', list[id]);
+});
+
 var list = [];
 var list1 = [];
 var list2 = [];
+
+function addId(arr) {
+  return arr.map(function(obj, index) {
+  return Object.assign({}, obj, { id: index });
+  });
+};
 
 //Connection details for local Stardog db
 const conn = new Connection({
@@ -60,8 +71,8 @@ var q2 = foaf + geo + dbo +
 */
 query.execute(conn, 'hospital_db', q2).then(({ body }) => {
   list = body.results.bindings;
-  JSON.stringify(list);
-  console.log(list);
+  list = addId(list);
+  //console.log(list);
 }).catch((err) => {
   console.log(err);
 });

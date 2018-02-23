@@ -1,7 +1,8 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
-<script type="text/javascript"> Handlebars.registerHelper('json', function(context) { return JSON.stringify(context); }); </script>
-
- {{{body}}}
- {{#each list}}
-  <p>{{ json x }}</p>
- {{/each}}
+<h2>Details</h2>
+<p>{{ json name }}</p>
+<p>{{ json city }}</p>
+<p>{{ json county }}</p>
+<p>{{ json phone }}</p>
+<p>{{ json email }}</p>
+<p>{{ json lat }}</p>
+<p>{{ json long }}</p>
