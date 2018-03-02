@@ -112,7 +112,7 @@ app.post('/resList', function(req, res){
         //console.log(list);
         app.get('/geoList', function(req, res){
           res.send({geoList: geoList});
-          res.send('success');
+          res.send('Success');
         });
       });
 });
