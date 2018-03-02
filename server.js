@@ -88,7 +88,7 @@ app.post('/resList', function(req, res){
 
   res.send('Success');
 
-  geoQuery = '\
+  var geoQuery = '\
   PREFIX lgdo: <http://linkedgeodata.org/ontology/>\
   PREFIX geom: <http://geovocab.org/geometry#>\
   PREFIX ogc: <http://www.opengis.net/ont/geosparql#>\
