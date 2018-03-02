@@ -34,14 +34,6 @@ var sdList = [];
 var dbpList = [];
 var geoList = [];
 
-var foaf = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/>';
-var geo = 'PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>';
-var dbo = 'PREFIX dbo: <http://dbpedia.org/ontology/>';
-var rdfs = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>';
-var ogc = 'PREFIX ogc: <http://www.opengis.net/ont/geosparql#>';
-var geom = 'PREFIX geom: <http://geovocab.org/geometry#>';
-var lgdo = 'PREFIX lgdo: <http://linkedgeodata.org/ontology/>';
-
 //Routes
 app.get("/", function(req, res){
   res.render("index", {sdList: sdList});
