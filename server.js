@@ -35,6 +35,43 @@ var sdList = [];
 var dbpList = [];
 var geoList = [];
 
+//Get data from local Stardog db
+getStardog().then(list => {
+  for(var i = 0; i < list.length; i++) {
+      sdList.push({
+        id: list[i].id,
+        x: list[i].x.value,
+        name: list[i].name.value,
+        city: list[i].NCITY.value,
+        county: list[i].NCOUNTY.value,
+        email: list[i].NMAIL.value,
+        phone: list[i].NPHONE.value,
+        lat: list[i].NLAT.value,
+        long: list[i].NLONG.value,
+        address: list[i].NADDRESS.value
+      });
+      sdList = addId(sdList);
+  }
+  //console.log(sdList);
+});
+
+//Send http request to dbpedia
+httpQuery(dbpEndpoint, sparqlQuery.dbpQuery, dbpList).then(list => {
+  //console.log(list);
+  for(var i = 0; i < list.length; i++) {
+    dbpList.push({
+      x: list[i].x.value,
+      openingY: list[i].NZ.value,
+      emergency: list[i].NC.value,
+      lat: list[i].NB.value,
+      long: list[i].NV.value,
+      name: list[i].NN.value
+    });
+  }
+  console.log(dbpList);
+});
+
+
 //Routes
 app.get("/", function(req, res){
   res.render("index", {sdList: sdList});
@@ -78,42 +115,6 @@ app.post('/resList', function(req, res){
         });
       });
   });
-
-//Get data from local Stardog db
-getStardog().then(list => {
-  for(var i = 0; i < list.length; i++) {
-      sdList.push({
-        id: list[i].id,
-        x: list[i].x.value,
-        name: list[i].name.value,
-        city: list[i].NCITY.value,
-        county: list[i].NCOUNTY.value,
-        email: list[i].NMAIL.value,
-        phone: list[i].NPHONE.value,
-        lat: list[i].NLAT.value,
-        long: list[i].NLONG.value,
-        address: list[i].NADDRESS.value
-      });
-      sdList = addId(sdList);
-  }
-  //console.log(sdList);
-});
-
-httpQuery(dbpEndpoint, sparqlQuery.dbpQuery, dbpList).then(list => {
-  //console.log(list);
-  for(var i = 0; i < list.length; i++) {
-    dbpList.push({
-      x: list[i].x.value,
-      openingY: list[i].NZ.value,
-      emergency: list[i].NC.value,
-      lat: list[i].NB.value,
-      long: list[i].NV.value,
-      name: list[i].NN.value
-    });
-  }
-  console.log(dbpList);
-});
-
 
 app.listen(port);
 console.log('Listening to port: ' + port);
