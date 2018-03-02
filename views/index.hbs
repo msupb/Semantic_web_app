@@ -1,17 +1,4 @@
-<!DOCTYPE html>
-<html>
-    <head>
-         <title>Semantic</title>
-         <script
-          src="https://code.jquery.com/jquery-3.3.1.min.js"
-          integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-          crossorigin="anonymous"></script>
-    </head>
-    <body>
-       {{{body}}}
-       {{#each list}}
-        <p><a href="index/{{ id }}">{{ json x }}</a></p>
+
+       {{#each sdList}}
+        <p><a href="index/{{ id }}">{{ x }}</a></p>
        {{/each}}
-       <script type="text/javascript" src="views/js/script.js"></script>
-     </body>
-</html>

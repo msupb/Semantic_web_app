@@ -1,56 +1,38 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-const { Connection, query } = require('stardog');
-var fetch = require('isomorphic-fetch');
 var SparqlHttp = require('sparql-http-client');
 var path = require('path');
 var hbs = require('handlebars');
+var Handlebars = require('hbs');
+var httpQuery = require('./modules/httpQ');
+var getStardog = require('./modules/stardog_module');
+var addId = require('./modules/addId');
+var sparqlQuery = require('./modules/queries');
 
 var app = express();
-
-app.use('/views', express.static(__dirname + '/views'));
+var port = process.env.PORT || 3000;
 app.set('view engine', 'hbs');
 
-var Handlebars = require('hbs');
+//Middleware
+app.use('/views', express.static(__dirname + '/views'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
+//Helper for stringifying JSON on client
 Handlebars.registerHelper('json', function(context) {
     return JSON.stringify(context);
 });
 
-app.use(bodyParser.urlencoded({extended: false}));
-
-//Routes
-app.get("/", function(req, res){
-  z = 0;
-  res.render("index", {list: list});
-});
-
-app.get("/index/:id", function(req, res){
-  var id = req.params.id;
-  res.render('details', list[id]);
-});
+//Endpoints
+var dpedia = 'http://dbpedia.org/sparql';
+var lgd = 'http://linkedgeodata.org/sparql';
+const dbpEndpoint = new SparqlHttp({endpointUrl: dpedia});
+const lgdEndpoint = new SparqlHttp({endpointUrl: lgd});
 
 //Lists
-var list = [];
-var list1 = [];
-var list2 = [];
-var temp = [];
-
-//Add id to each object in array for routing purposes
-function addId(arr) {
-  return arr.map(function(obj, index) {
-  return Object.assign({}, obj, { id: index });
-  });
-};
-
-//Connection details for local Stardog db
-const conn = new Connection({
-  username: 'admin',
-  password: 'admin',
-  endpoint: 'http://localhost:5820',
-});
-//Queries
-var q = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT ?x WHERE{?x a foaf:Organization ;}';
+var sdList = [];
+var dbpList = [];
+var geoList = [];
 
 var foaf = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/>';
 var geo = 'PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>';
@@ -60,68 +42,85 @@ var ogc = 'PREFIX ogc: <http://www.opengis.net/ont/geosparql#>';
 var geom = 'PREFIX geom: <http://geovocab.org/geometry#>';
 var lgdo = 'PREFIX lgdo: <http://linkedgeodata.org/ontology/>';
 
-var q2 = foaf + geo + dbo +
-'SELECT ?x ?name ?city ?county ?phone ?email ?lat ?long WHERE{?x a foaf:Organization ;foaf:name ?name ;dbo:City ?city ;dbo:county ?county ;foaf:mbox ?email ;foaf:phone ?phone ;geo:lat ?lat ;geo:long ?long .}'
-/*
-* Execute query to Stardog db
-*/
-query.execute(conn, 'hospital_db', q2).then(({ body }) => {
-  temp = body.results.bindings;
-  temp = addId(temp);
-  for(var i = 0; i < temp.length; i++) {
-      tempObj = {
-        id: temp[i].id,
-        x: temp[i].x.value,
-        name: temp[i].name.value,
-        city: temp[i].city.value,
-        county: temp[i].county.value,
-        email: temp[i].email.value,
-        phone: temp[i].phone.value,
-        lat: temp[i].lat.value,
-        long: temp[i].long.value
-      };
-      list.push(tempObj);
-  }
-  //console.log(list);
-  return list;
-}).catch((err) => {
-  console.log(err);
+//Routes
+app.get("/", function(req, res){
+  res.render("index", {sdList: sdList});
 });
 
-/*
-* Execute query to endpoints
-*/
+app.get("/index/:id", function(req, res){
+  var id = req.params.id;
+  res.render('details', sdList[id]);
+});
 
-SparqlHttp.fetch = fetch
+app.post('/resList', function(req, res){
+  var coords = req.body.coords;
 
-//Dbpedia endpoint
-var dpedia = 'http://dbpedia.org/sparql';
-//Linked geodata endpoint
-var lgd = 'http://linkedgeodata.org/sparql';
-//Set endpoint
-var endpoint = new SparqlHttp({endpointUrl: dpedia});
+  res.send('Successful POST');
 
-var endpoint2 = new SparqlHttp({endpointUrl: lgd});
+  geoQuery = '\
+  PREFIX lgdo: <http://linkedgeodata.org/ontology/>\
+  PREFIX geom: <http://geovocab.org/geometry#>\
+  PREFIX ogc: <http://www.opengis.net/ont/geosparql#>\
+  SELECT DISTINCT ?s (SAMPLE(?l) AS ?NL) (SAMPLE(?g) AS ?NG) FROM <http://linkedgeodata.org>\
+   {\
+     ?s a lgdo:Pharmacy ;\
+      rdfs:label ?l ;\
+       geom:geometry [ogc:asWKT ?g] .\
+       Filter(bif:st_intersects (?g, bif:st_point ('+ coords +'), 10)) .\
+     }\
+     GROUP BY ?s';
 
-var dbpq = 'select distinct ?Concept where {[] a ?Concept} LIMIT 1';
+  httpQuery(lgdEndpoint, geoQuery, geoList)
+      .then(list => {
+        for(var i = 0; i < list.length; i++) {
+          geoList.push({
+            s: list[i].s.value,
+            l: list[i].NL.value,
+            g: list[i].NG.value
+          });
+        }
+        //console.log(list);
+        app.get('/geoList', function(req, res){
+          res.send({geoList: geoList});
+        });
+      });
+  });
 
-var lgdq = 'Prefix lgdr:<http://linkedgeodata.org/triplify/>Prefix lgdo:<http://linkedgeodata.org/ontology/>Select*{ ?s ?p ?o . }Limit 1';
+//Get data from local Stardog db
+getStardog().then(list => {
+  for(var i = 0; i < list.length; i++) {
+      sdList.push({
+        id: list[i].id,
+        x: list[i].x.value,
+        name: list[i].name.value,
+        city: list[i].NCITY.value,
+        county: list[i].NCOUNTY.value,
+        email: list[i].NMAIL.value,
+        phone: list[i].NPHONE.value,
+        lat: list[i].NLAT.value,
+        long: list[i].NLONG.value,
+        address: list[i].NADDRESS.value
+      });
+      sdList = addId(sdList);
+  }
+  //console.log(sdList);
+});
 
-var geoq = rdfs + ogc + geom + lgdo + 'Select * From <http://linkedgeodata.org> {?s a lgdo:Amenity ; rdfs:label ?l ; geom:geometry [ogc:asWKT ?g] . Filter(bif:st_intersects (?g, bif:st_point (12.372966, 51.310228), 0.1)) .}';
+httpQuery(dbpEndpoint, sparqlQuery.dbpQuery, dbpList).then(list => {
+  //console.log(list);
+  for(var i = 0; i < list.length; i++) {
+    dbpList.push({
+      x: list[i].x.value,
+      openingY: list[i].NZ.value,
+      emergency: list[i].NC.value,
+      lat: list[i].NB.value,
+      long: list[i].NV.value,
+      name: list[i].NN.value
+    });
+  }
+  console.log(dbpList);
+});
 
-// run http query
-var httpQuery = function(ep, q, lst) {
-  ep.selectQuery(q).then(function (res) {
-       return res.json()
-  }).then(function (result) {
-        lst = result.results.bindings;
-       console.log(lst)
-  }).catch(function (err) {
-      console.error(err)
-  })
-}
 
-//httpQuery(endpoint, dbpq, list1);
-httpQuery(endpoint2, geoq, list2);
-
-app.listen(3000, () => console.log('Listening to port 3000!'))
+app.listen(port);
+console.log('Listening to port: ' + port);
