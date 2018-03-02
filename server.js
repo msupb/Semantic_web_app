@@ -34,6 +34,7 @@ const lgdEndpoint = new SparqlHttp({endpointUrl: lgd});
 var sdList = [];
 var dbpList = [];
 var geoList = [];
+var resList = [];
 
 //Get data from local Stardog db
 getStardog().then(list => {
