@@ -11,12 +11,13 @@ var sparqlQuery = require('./modules/queries');
 
 var app = express();
 var port = process.env.PORT || 3000;
-app.set('view engine', 'hbs');
+
 
 //Middleware
 app.use('/views', express.static(__dirname + '/views'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.set('view engine', 'hbs');
 
 //Helper for stringifying JSON on client
 Handlebars.registerHelper('json', function(context) {
