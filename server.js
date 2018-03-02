@@ -85,7 +85,7 @@ app.get("/index/:id", function(req, res){
 app.post('/resList', function(req, res){
   var coords = req.body.coords;
 
-  res.send('Successful POST');
+  res.send('Success');
 
   geoQuery = '\
   PREFIX lgdo: <http://linkedgeodata.org/ontology/>\
