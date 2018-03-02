@@ -99,7 +99,7 @@ app.post('/resList', function(req, res){
        Filter(bif:st_intersects (?g, bif:st_point ('+ coords +'), 10)) .\
      }\
      GROUP BY ?s';
-
+  //Query dbpedia
   httpQuery(lgdEndpoint, geoQuery, geoList)
       .then(list => {
         for(var i = 0; i < list.length; i++) {
