@@ -114,7 +114,7 @@ app.post('/resList', function(req, res){
           res.send({geoList: geoList});
         });
       });
-  });
+});
 
 app.listen(port);
 console.log('Listening to port: ' + port);
