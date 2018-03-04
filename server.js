@@ -8,6 +8,7 @@ var httpQuery = require('./modules/httpQ');
 var getStardog = require('./modules/stardog_module');
 var addId = require('./modules/addId');
 var sparqlQuery = require('./modules/queries');
+var mergeList = require('./modules/mergeList');
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -41,37 +42,39 @@ getStardog().then(list => {
   for(var i = 0; i < list.length; i++) {
       sdList.push({
         id: list[i].id,
-        x: list[i].x.value,
-        name: list[i].name.value,
-        city: list[i].NCITY.value,
-        county: list[i].NCOUNTY.value,
-        email: list[i].NMAIL.value,
-        phone: list[i].NPHONE.value,
+        x: list[i].x.value.replace(/_/g, ' '),
+        name: list[i].name.value.replace(/_/g, ' '),
+        city: list[i].NCITY.value.replace(/_/g, ' '),
+        county: list[i].NCOUNTY.value.replace(/_/g, ' '),
+        email: list[i].NMAIL.value.replace(/_/g, ' '),
+        phone: list[i].NPHONE.value.replace(/_/g, ' '),
         lat: list[i].NLAT.value,
         long: list[i].NLONG.value,
-        address: list[i].NADDRESS.value
+        address: list[i].NADDRESS.value.replace(/_/g, ' '),
+        homepage: list[i].NHOMEPAGE.value
       });
       sdList = addId(sdList);
   }
+
+  //Send http request to dbpedia
+  httpQuery(dbpEndpoint, sparqlQuery.dbpQuery, dbpList).then(list => {
+    for(var i = 0; i < list.length; i++) {
+        dbpList.push({
+          z: list[i].x.value,
+          opening_year: list[i].NZ.value,
+          emergency: list[i].NC.value,
+          bed_count: list[i].NB.value,
+          comment: list[i].NV.value,
+          name: list[i].NN.value,
+          region: list[i].NR.value
+        });
+      }
+      //Calls custom method to transfer object properties from dbpList to sdList
+      sdList = mergeList(sdList, dbpList);
+      console.log(sdList);
+  });
   //console.log(sdList);
 });
-
-//Send http request to dbpedia
-httpQuery(dbpEndpoint, sparqlQuery.dbpQuery, dbpList).then(list => {
-  //console.log(list);
-  for(var i = 0; i < list.length; i++) {
-    dbpList.push({
-      x: list[i].x.value,
-      openingY: list[i].NZ.value,
-      emergency: list[i].NC.value,
-      lat: list[i].NB.value,
-      long: list[i].NV.value,
-      name: list[i].NN.value
-    });
-  }
-  console.log(dbpList);
-});
-
 
 //Routes
 app.get("/", function(req, res){
@@ -88,7 +91,7 @@ app.post('/resList', function(req, res){
 
   res.send('Success');
 
-  var geoQuery = '\
+  geoQuery = '\
   PREFIX lgdo: <http://linkedgeodata.org/ontology/>\
   PREFIX geom: <http://geovocab.org/geometry#>\
   PREFIX ogc: <http://www.opengis.net/ont/geosparql#>\

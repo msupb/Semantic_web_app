@@ -2,7 +2,7 @@ exports.sdQuery = '\
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>\
 PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>\
 PREFIX dbo: <http://dbpedia.org/ontology/>\
-SELECT DISTINCT ?x ?name (SAMPLE(?city) AS ?NCITY) (SAMPLE(?county) AS ?NCOUNTY) (SAMPLE(?phone) AS ?NPHONE) (SAMPLE(?email) AS ?NMAIL) (SAMPLE(?address) AS ?NADDRESS) (SAMPLE(?lat) AS ?NLAT) (SAMPLE(?long) AS ?NLONG)\
+SELECT DISTINCT ?x ?name (SAMPLE(?city) AS ?NCITY) (SAMPLE(?county) AS ?NCOUNTY) (SAMPLE(?phone) AS ?NPHONE) (SAMPLE(?email) AS ?NMAIL) (SAMPLE(?address) AS ?NADDRESS) (SAMPLE(?lat) AS ?NLAT) (SAMPLE(?long) AS ?NLONG) (SAMPLE(?homepage) AS ?NHOMEPAGE)\
  WHERE\
  {\
    ?x a foaf:Organization ;\
@@ -13,7 +13,8 @@ SELECT DISTINCT ?x ?name (SAMPLE(?city) AS ?NCITY) (SAMPLE(?county) AS ?NCOUNTY)
    foaf:address ?address ;\
    foaf:phone ?phone ;\
    geo:lat ?lat ;\
-   geo:long ?long .\
+   geo:long ?long ;\
+   foaf:homepage ?homepage .\
  }\
  GROUP BY ?x ?name';
 
@@ -23,15 +24,16 @@ exports.dbpQuery = '\
  PREFIX dbr: <http://dbpedia.org/resource/>\
  PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>\
  PREFIX dbo: <http://dbpedia.org/ontology/>\
- SELECT DISTINCT ?x (SAMPLE(?z) AS ?NZ) (SAMPLE(?c) AS ?NC) (SAMPLE(?b) AS ?NB) (SAMPLE(?v) AS ?NV) (SAMPLE(?n) AS ?NN)\
+ SELECT DISTINCT ?x (SAMPLE(?z) AS ?NZ) (SAMPLE(?c) AS ?NC) (SAMPLE(?b) AS ?NB) (SAMPLE(?v) AS ?NV) (SAMPLE(?n) AS ?NN) (SAMPLE(?r) AS ?NR)\
  WHERE\
  {\
  ?x a dbo:Hospital ;\
     dbo:state dbr:England ;\
     dbo:openingYear ?z ;\
     dbp:emergency ?c ;\
-    geo:lat ?b ;\
-    geo:long ?v ;\
-    rdfs:label ?n .\
+    dbo:bedCount ?b ;\
+    rdfs:comment ?v ;\
+    rdfs:label ?n ;\
+    dbp:region ?r . \
  }\
  GROUP BY ?x';
