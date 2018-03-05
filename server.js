@@ -8,7 +8,6 @@ var httpQuery = require('./modules/httpQ');
 var getStardog = require('./modules/stardog_module');
 var addId = require('./modules/addId');
 var sparqlQuery = require('./modules/queries');
-var mergeList = require('./modules/mergeList');
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -55,27 +54,6 @@ getStardog().then(list => {
       });
       sdList = addId(sdList);
   }
-<<<<<<< HEAD
-=======
-
-  //Send http request to dbpedia
-  httpQuery(dbpEndpoint, sparqlQuery.dbpQuery, dbpList).then(list => {
-    for(var i = 0; i < list.length; i++) {
-        dbpList.push({
-          z: list[i].x.value,
-          opening_year: list[i].NZ.value,
-          emergency: list[i].NC.value,
-          bed_count: list[i].NB.value,
-          comment: list[i].NV.value,
-          name: list[i].NN.value,
-          region: list[i].NR.value
-        });
-      }
-      //Calls custom method to transfer object properties from dbpList to sdList
-      sdList = mergeList(sdList, dbpList);
-      console.log(sdList);
-  });
->>>>>>> 73bbec15fa7c32dcd891518912bf4fef4abd68d3
   //console.log(sdList);
 });
 
