@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 function mergeList(lst1, lst2) {
   for(var i = 0; i < lst1.length; i++) {
     if(lst1[i].name === lst2[i].name){
@@ -46,3 +47,13 @@ list2 = [ { x: 'http://dbpedia.org/resource/St_Peter\'s_Hospital_(Chertsey)',
 //mergeList(list1, list2);
 
 module.exports = mergeList;
+=======
+function mergeList(lst1, lst2) {
+  return lst1.map(o1 => Object.assign({comment: lst2.find(o2 => o2.county === o1.region).comment},
+                                      {emergency: lst2.find(o2 => o2.county === o1.region).emergency},
+                                      {opening_year: lst2.find(o2 => o2.county === o1.region).opening_year},
+                                      {bed_count: lst2.find(o2 => o2.county === o1.region).bed_count}, o1));
+}
+
+module.exports = mergeList;
+>>>>>>> 73bbec15fa7c32dcd891518912bf4fef4abd68d3
