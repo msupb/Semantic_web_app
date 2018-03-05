@@ -11,12 +11,13 @@ var sparqlQuery = require('./modules/queries');
 
 var app = express();
 var port = process.env.PORT || 3000;
-app.set('view engine', 'hbs');
+
 
 //Middleware
 app.use('/views', express.static(__dirname + '/views'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.set('view engine', 'hbs');
 
 //Helper for stringifying JSON on client
 Handlebars.registerHelper('json', function(context) {
@@ -33,31 +34,92 @@ const lgdEndpoint = new SparqlHttp({endpointUrl: lgd});
 var sdList = [];
 var dbpList = [];
 var geoList = [];
+var resList = [];
 
-var foaf = 'PREFIX foaf: <http://xmlns.com/foaf/0.1/>';
-var geo = 'PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>';
-var dbo = 'PREFIX dbo: <http://dbpedia.org/ontology/>';
-var rdfs = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>';
-var ogc = 'PREFIX ogc: <http://www.opengis.net/ont/geosparql#>';
-var geom = 'PREFIX geom: <http://geovocab.org/geometry#>';
-var lgdo = 'PREFIX lgdo: <http://linkedgeodata.org/ontology/>';
+//Get data from local Stardog db
+getStardog().then(list => {
+  for(var i = 0; i < list.length; i++) {
+      sdList.push({
+        id: list[i].id,
+        x: list[i].x.value.replace(/_/g, ' '),
+        name: list[i].name.value.replace(/_/g, ' '),
+        city: list[i].NCITY.value.replace(/_/g, ' '),
+        county: list[i].NCOUNTY.value.replace(/_/g, ' '),
+        email: list[i].NMAIL.value.replace(/_/g, ' '),
+        phone: list[i].NPHONE.value.replace(/_/g, ' '),
+        lat: list[i].NLAT.value,
+        long: list[i].NLONG.value,
+        address: list[i].NADDRESS.value.replace(/_/g, ' '),
+        homepage: list[i].NHOMEPAGE.value
+      });
+      sdList = addId(sdList);
+  }
+  //console.log(sdList);
+});
 
 //Routes
 app.get("/", function(req, res){
-  res.render("index", {sdList: sdList});
+  res.render('index', {sdList: sdList});
 });
 
-app.get("/index/:id", function(req, res){
+app.get('/index/:id/:name', function(req, res){
   var id = req.params.id;
-  res.render('details', sdList[id]);
+  var name = req.params.name;
+  var temp = [];
+
+  temp.push({
+    name: sdList[id].name,
+    city: sdList[id].city,
+    county: sdList[id].county,
+    email: sdList[id].email,
+    long: sdList[id].long,
+    lat: sdList[id].lat,
+    phone: sdList[id].phone,
+    address: sdList[id].address,
+    homepage: sdList[id].homepage
+  });
+
+  var dbpQuery = '\
+  PREFIX dbp: <http://dbpedia.org/property/>\
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\
+  PREFIX dbr: <http://dbpedia.org/resource/>\
+  PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>\
+  PREFIX dbo: <http://dbpedia.org/ontology/>\
+  PREFIX foaf: <http://xmlns.com/foaf/0.1/>\
+  SELECT DISTINCT ?x ?a ?z ?c ?b \
+  WHERE\
+  {\
+  ?x\
+    dbo:abstract ?a ;\
+    dbo:openingYear ?z ;\
+    dbp:emergency ?c ;\
+    dbo:bedCount ?b ;\
+    rdfs:label "'+name+'"@en .\
+  }\
+  GROUP BY ?x';
+
+  //Send http request to dbpedia
+  httpQuery(dbpEndpoint, dbpQuery, dbpList).then(list => {
+    for(var i = 0; i < list.length; i++) {
+       dbpList.push({
+         x: list[i].x.value,
+         abstract: list[i].a.value,
+         opening_year: list[i].z.value,
+         bed_count: list[i].b.value,
+         emergency: list[i].c.value
+        });
+      }
+      res.render('details', {dbpList: dbpList, temp: temp});
+      dbpList = [];
+   });
 });
 
 app.post('/resList', function(req, res){
   var coords = req.body.coords;
 
-  res.send('Successful POST');
+  res.send('Success');
 
-  geoQuery = '\
+  var geoQuery = '\
   PREFIX lgdo: <http://linkedgeodata.org/ontology/>\
   PREFIX geom: <http://geovocab.org/geometry#>\
   PREFIX ogc: <http://www.opengis.net/ont/geosparql#>\
@@ -69,7 +131,7 @@ app.post('/resList', function(req, res){
        Filter(bif:st_intersects (?g, bif:st_point ('+ coords +'), 10)) .\
      }\
      GROUP BY ?s';
-
+  //Query dbpedia
   httpQuery(lgdEndpoint, geoQuery, geoList)
       .then(list => {
         for(var i = 0; i < list.length; i++) {
@@ -82,45 +144,10 @@ app.post('/resList', function(req, res){
         //console.log(list);
         app.get('/geoList', function(req, res){
           res.send({geoList: geoList});
+          res.send('Success');
         });
       });
-  });
-
-//Get data from local Stardog db
-getStardog().then(list => {
-  for(var i = 0; i < list.length; i++) {
-      sdList.push({
-        id: list[i].id,
-        x: list[i].x.value,
-        name: list[i].name.value,
-        city: list[i].NCITY.value,
-        county: list[i].NCOUNTY.value,
-        email: list[i].NMAIL.value,
-        phone: list[i].NPHONE.value,
-        lat: list[i].NLAT.value,
-        long: list[i].NLONG.value,
-        address: list[i].NADDRESS.value
-      });
-      sdList = addId(sdList);
-  }
-  //console.log(sdList);
 });
-
-httpQuery(dbpEndpoint, sparqlQuery.dbpQuery, dbpList).then(list => {
-  //console.log(list);
-  for(var i = 0; i < list.length; i++) {
-    dbpList.push({
-      x: list[i].x.value,
-      openingY: list[i].NZ.value,
-      emergency: list[i].NC.value,
-      lat: list[i].NB.value,
-      long: list[i].NV.value,
-      name: list[i].NN.value
-    });
-  }
-  console.log(dbpList);
-});
-
 
 app.listen(port);
 console.log('Listening to port: ' + port);
