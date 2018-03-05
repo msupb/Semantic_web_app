@@ -1,37 +1,21 @@
-<<<<<<< HEAD
 <h1>Details</h1>
-{{#temp}}
-<p>Name: {{ name }}</p>
-<p>City: {{ city }}</p>
-<p>County: {{ county }}</p>
-<p>Phone: {{ phone }}</p>
-<p>Phone: {{ homepage }}</p>
-<p>E-mail: {{ email }}</p>
-<p>Latitude: <span class="lat">{{ lat }}</span></p>
-<p>Longitude: <span class="long">{{ long }}</span></p>
-<p>Address: {{ address }}</p>
-{{/temp}}
-{{#dbpList}}
-  <p>Number of beds available: {{ bed_count }}</p>
-  <p>Has emergency clinic: {{ emergency }}</p>
-  <p>Opening year: {{ opening_year }}</p>
-  <p>Comment from dbpedia: {{ abstract }}</p>
-{{/dbpList}}
-<button id="send-coords">Click me</button>
-=======
-<h1>Details</h1>
-<p>Name: {{ name }}</p>
-<p>City: {{ city }}</p>
-<p>County: {{ county }}</p>
-<p>Phone: {{ phone }}</p>
-<p>Phone: {{ homepage }}</p>
-<p>E-mail: {{ email }}</p>
-<p>Latitude: <span class="lat">{{ lat }}</span></p>
-<p>Longitude: <span class="long">{{ long }}</span></p>
-<p>Address: {{ address }}</p>
-<p>Number of beds available: {{ bed_count }}</p>
-<p>Has emergency clinic: {{ emergency }}</p>
-<p>Opening year: {{ opening_year }}</p>
-<p>Comment from dbpedia: {{ comment }}</p>
-<button id="send-coords">Click me</button>
->>>>>>> 73bbec15fa7c32dcd891518912bf4fef4abd68d3
+<ul class="list-group">
+  {{#temp}}
+    <li class="list-group-item">Name: {{ name }}</li>
+    <li class="list-group-item">City: {{ city }}</li>
+    <li class="list-group-item">County: {{ county }}</li>
+    <li class="list-group-item">Phone: {{ phone }}</li>
+    <li class="list-group-item">Homepage: {{ homepage }}</li>
+    <li class="list-group-item">E-mail: {{ email }}</li>
+    <li class="list-group-item">Latitude: <span class="lat">{{ lat }}</span></li>
+    <li class="list-group-item">Longitude: <span class="long">{{ long }}</span></li>
+    <li class="list-group-item">Address: {{ address }}</li>
+  {{/temp}}
+  {{#dbpList}}
+    <li class="list-group-item">Number of beds: {{ bed_count }}</li>
+    <li class="list-group-item">Has emergency unit: {{ emergency }}</li>
+    <li class="list-group-item">Opening year: {{ opening_year }}</li>
+    <li class="list-group-item">Abstract: {{ abstract }}</li>
+  {{/dbpList}}
+</ul>
+<button class="btn btn-primary" id="send-coords">Click me</button>
