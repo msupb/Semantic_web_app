@@ -143,13 +143,34 @@ app.post('/resList', function(req, res) {
   //Query dbpedia
   httpQuery(lgdEndpoint, geoQuery, geoList)
     .then(list => {
+      geoList = [];
       for (var i = 0; i < list.length; i++) {
+        
+        // I fucking hated this while writing. why you suck javascript ?
+        var getEmptyChar = list[i].NG.value.search(" ");
+        var removeLast = list[i].NG.value.length;
+
+        //hatred finished
+        
         geoList.push({
+          
           s: list[i].s.value,
           l: list[i].NL.value,
-          g: list[i].NG.value
+          a: list[i].NG.value.substring(6,getEmptyChar), //6 stands for where the "POINT" string ends
+          b: list[i].NG.value.substring(getEmptyChar+1,removeLast-1),
+          c: list[i].NG.value 
+
+          //a and b for seperating coordinates for google maps. and removing "POINT" string
+          
+          //a take the first coordinate, b takes the 2nd
+          //c stands for full string to check if methods work okay.
         });
+        
+        
       }
+
+      
+     
       //console.log(list);
       app.get('/geoList', function(req, res) {
         res.send({
