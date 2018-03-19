@@ -1,23 +1,30 @@
-var timeout = null;
 //Get pharmacy data from server
 function getData(){
+  let temp = [];
    $.ajax({
      url: '/geoList',
      method: 'GET',
      dataType: 'json',
      contentType: 'application/json',
      success: function(response) {
-       console.log(response);
+       temp = response.geoList;
+       console.log(temp);
+       let el = $('#test');
+       //el.html('');
+       temp.forEach(function(temp){
+         el.append('<div class="card"><h5 class="card-title"><b>Pharmacy:</b></h5><p class="card-text">' + temp.l + '</p><p class="card-text">' + temp.s + '</p></div>');
+        });
      }
    });
  };
 
 //Send coordinates to server
 $(document).on('click', '#send-coords', function(){
-  var pendingCall = { timeStamp: null, procID: null };
-  var longInput = $('.long').text();
-  var latInput = $('.lat').text();
-  var coords = longInput + ', ' + latInput;
+  let timeout = null;
+  let pendingCall = { timeStamp: null, procID: null };
+  let longInput = $('.long').text();
+  let latInput = $('.lat').text();
+  let coords = longInput + ', ' + latInput;
   console.log(JSON.stringify(longInput) + ' ' + JSON.stringify(latInput));
   $.ajax({
     url: '/resList',

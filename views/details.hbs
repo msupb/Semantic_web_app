@@ -1,21 +1,26 @@
 <h1>Details</h1>
 <ul class="list-group">
   {{#temp}}
-    <li class="list-group-item">Name: {{ name }}</li>
-    <li class="list-group-item">City: {{ city }}</li>
-    <li class="list-group-item">County: {{ county }}</li>
-    <li class="list-group-item">Phone: {{ phone }}</li>
-    <li class="list-group-item">Homepage: {{ homepage }}</li>
-    <li class="list-group-item">E-mail: {{ email }}</li>
-    <li class="list-group-item">Latitude: <span class="lat">{{ lat }}</span></li>
-    <li class="list-group-item">Longitude: <span class="long">{{ long }}</span></li>
-    <li class="list-group-item">Address: {{ address }}</li>
-  {{/temp}}
+    <li class="list-group-item"><b>Name:</b> {{ name }}</li>
+    <li class="list-group-item"><b>City:</b> {{ city }}</li>
+    <li class="list-group-item"><b>County:</b> {{ county }}</li>
+    <li class="list-group-item"><b>Phone:</b> {{ phone }}</li>
+    <li class="list-group-item"><b>Homepage:</b> {{ homepage }}</li>
+    <li class="list-group-item"><b>E-mail:</b> {{ email }}</li>
+    <li class="list-group-item"><b>Latitude:</b> <span class="lat">{{ lat }}</span></li>
+    <li class="list-group-item"><b>Longitude:</b> <span class="long">{{ long }}</span></li>
+    <li class="list-group-item"><b>Address:</b> {{ address }}</li>
+
   {{#dbpList}}
-    <li class="list-group-item">Number of beds: {{ bed_count }}</li>
-    <li class="list-group-item">Has emergency unit: {{ emergency }}</li>
-    <li class="list-group-item">Opening year: {{ opening_year }}</li>
-    <li class="list-group-item">Abstract: {{ abstract }}</li>
+    <li class="list-group-item"><b>Number of beds:</b> {{ bed_count }}</li>
+    <li class="list-group-item"><b>Has emergency unit:</b> {{ emergency }}</li>
+    <li class="list-group-item"><b>Opening year:</b> {{ opening_year }}</li>
+    <li class="list-group-item"><b>Abstract:</b> {{ abstract }}</li>
   {{/dbpList}}
 </ul>
-<button class="btn btn-primary" id="send-coords">Click me</button>
+<p><b>Find pharmacies within 10km of {{ name }}</b></p>
+{{/temp}}
+<button class="btn btn-primary" id="send-coords">Find</button>
+<div id="test">
+
+</div>

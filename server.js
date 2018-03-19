@@ -66,9 +66,9 @@ app.get("/", function(req, res) {
 });
 
 app.get('/index/:id/:name', function(req, res) {
-  var id = req.params.id;
-  var name = req.params.name;
-  var temp = [];
+  let id = req.params.id;
+  let name = req.params.name;
+  let temp = [];
 
   temp.push({
     name: sdList[id].name,
@@ -124,7 +124,7 @@ app.get('/index/:id/:name', function(req, res) {
 });
 
 app.post('/resList', function(req, res) {
-  var coords = req.body.coords;
+  let coords = req.body.coords;
 
   res.send('Success');
 
@@ -143,6 +143,7 @@ app.post('/resList', function(req, res) {
   //Query dbpedia
   httpQuery(lgdEndpoint, geoQuery, geoList)
     .then(list => {
+      geoList = [];
       for (var i = 0; i < list.length; i++) {
         geoList.push({
           s: list[i].s.value,
