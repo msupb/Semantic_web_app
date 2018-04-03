@@ -3,7 +3,6 @@ var bodyParser = require('body-parser');
 var SparqlHttp = require('sparql-http-client');
 var path = require('path');
 var hbs = require('handlebars');
-var Handlebars = require('hbs');
 var httpQuery = require('./modules/httpQ');
 var getStardog = require('./modules/stardog_module');
 var addId = require('./modules/addId');
