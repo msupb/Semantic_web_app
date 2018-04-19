@@ -22,8 +22,8 @@ app.use(bodyParser.urlencoded({
 app.set('view engine', 'hbs');
 
 //Endpoints
-var dpedia = 'http://dbpedia.org/sparql';
-var lgd = 'http://linkedgeodata.org/sparql';
+let dpedia = 'http://dbpedia.org/sparql';
+let lgd = 'http://linkedgeodata.org/sparql';
 const dbpEndpoint = new SparqlHttp({
   endpointUrl: dpedia
 });
@@ -32,14 +32,14 @@ const lgdEndpoint = new SparqlHttp({
 });
 
 //Lists
-var sdList = [];
-var dbpList = [];
-var geoList = [];
-var resList = [];
+let sdList = [];
+let dbpList = [];
+let geoList = [];
+let resList = [];
 
 //Get data from local Stardog db
 getStardog().then(list => {
-  for (var i = 0; i < list.length; i++) {
+  for (let i = 0; i < list.length; i++) {
     sdList.push({
       id: list[i].id,
       x: list[i].x.value.replace(/_/g, ' '),
@@ -81,7 +81,7 @@ app.get('/index/:id/:name', function(req, res) {
     homepage: sdList[id].homepage
   });
 
-  var dbpQuery = '\
+  let dbpQuery = '\
     PREFIX dbp: <http://dbpedia.org/property/>\
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\
     PREFIX dbr: <http://dbpedia.org/resource/>\
@@ -105,7 +105,7 @@ app.get('/index/:id/:name', function(req, res) {
 
   //Send http request to dbpedia
   httpQuery(dbpEndpoint, dbpQuery, dbpList).then(list => {
-    for (var i = 0; i < list.length; i++) {
+    for (let i = 0; i < list.length; i++) {
       dbpList.push({
         x: list[i].x.value,
         abstract: list[i].abstract.value,
@@ -127,7 +127,7 @@ app.post('/resList', function(req, res) {
 
   res.send('Success');
 
-  var geoQuery = '\
+  let geoQuery = '\
   PREFIX lgdo: <http://linkedgeodata.org/ontology/>\
   PREFIX geom: <http://geovocab.org/geometry#>\
   PREFIX ogc: <http://www.opengis.net/ont/geosparql#>\
@@ -143,7 +143,7 @@ app.post('/resList', function(req, res) {
   httpQuery(lgdEndpoint, geoQuery, geoList)
     .then(list => {
       geoList = [];
-      for (var i = 0; i < list.length; i++) {
+      for (let i = 0; i < list.length; i++) {
         geoList.push({
           s: list[i].s.value,
           l: list[i].NL.value,
